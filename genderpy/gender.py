@@ -54,3 +54,21 @@ class DiscordSensorUser:
                 'admin_roles': g.get('admin_roles', [])
             } for g in self.admin_guilds
         ]
+
+
+def server_info(guild_id: str) -> dict | None:
+
+    headers = {"User-Agent": "Mozilla/5.0"}
+    server_url = f"https://discord-sensor.com/api/servers/get-detail-guild-info/{guild_id}"
+    roles_url = f"https://discord-sensor.com/api/functions/get-server-roles/{guild_id}"
+    try:
+        server_resp = requests.get(server_url, headers=headers, timeout=10)
+        roles_resp = requests.get(roles_url, headers=headers, timeout=10)
+        if not server_resp.ok or not roles_resp.ok:
+            return None
+        server = server_resp.json()
+        roles_data = roles_resp.json()
+        roles = roles_data.get('roles', [])
+        return {"server": server, "roles": roles}
+    except Exception:
+        return None
