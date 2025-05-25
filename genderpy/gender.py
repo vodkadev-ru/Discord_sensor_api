@@ -1,7 +1,4 @@
-# gender_utils.py
 import requests
-import re
-import json
 from typing import Optional, List, Dict, Any
 
 class DiscordSensorUser:
@@ -10,25 +7,14 @@ class DiscordSensorUser:
         self._data = None
 
     def fetch(self) -> bool:
-        url = f"https://discord-sensor.com/members/{self.user_id}"
+        url = f"https://discord-sensor.com/api/tracker/get-user-info/{self.user_id}"
         headers = {"User-Agent": "Mozilla/5.0"}
         try:
             resp = requests.get(url, headers=headers)
             if not resp.ok:
                 return False
-            scripts = re.findall(r'<script>self\.__next_f\.push\(\[1,"(.*?)"\]\)</script>', resp.text, re.DOTALL)
-            user_data = None
-            for script in scripts:
-                script = bytes(script, "utf-8").decode("unicode_escape")
-                match = re.search(r'"userData":({.*?}),"userId"', script, re.DOTALL)
-                if match:
-                    user_data_str = match.group(1)
-                    try:
-                        user_data = json.loads(user_data_str)
-                        break
-                    except Exception:
-                        continue
-            if user_data:
+            user_data = resp.json()
+            if user_data and isinstance(user_data, dict):
                 self._data = user_data
                 return True
             return False
@@ -43,20 +29,17 @@ class DiscordSensorUser:
 
     @property
     def staff_guilds(self) -> List[Dict[str, Any]]:
-        """Список серверов, где есть staff_roles (не пустой)"""
         if not self._data:
             return []
         return [g for g in self._data.get("staff_admin_guilds", []) if g.get("staff_roles")]
 
     @property
     def admin_guilds(self) -> List[Dict[str, Any]]:
-        """Список серверов, где есть admin_roles (не пустой)"""
         if not self._data:
             return []
         return [g for g in self._data.get("staff_admin_guilds", []) if g.get("admin_roles")]
 
     def get_staff_info(self) -> List[Dict[str, Any]]:
-        """Информация только по стафф ролям"""
         return [
             {
                 'name': g.get('name'),
@@ -65,17 +48,9 @@ class DiscordSensorUser:
         ]
 
     def get_admin_info(self) -> List[Dict[str, Any]]:
-        """Информация только по админ ролям"""
         return [
             {
                 'name': g.get('name'),
                 'admin_roles': g.get('admin_roles', [])
             } for g in self.admin_guilds
         ]
-
-# Пример использования:
-# user = DiscordSensorUser('819547571265470505')
-# if user.fetch():
-#     print('gender:', user.gender)
-#     print('staff:', user.get_staff_info())
-#     print('admin:', user.get_admin_info())
