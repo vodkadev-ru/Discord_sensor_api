@@ -1,16 +1,17 @@
 (async () => {
-    const module = await import('./gender/gender.mjs');
+    const module = await import('./genderjs/gender.mjs');
     const getDiscordSensorUser = module.getDiscordSensorUser;
     const serverInfo = module.serverInfo;
     const readline = await import('readline');
 
     // Пример для пользователя
-    const userId = '819547571265470505'; // подставьте нужный айди
+    const userId = '1017493634418999426'; // подставьте нужный айди
     const info = await getDiscordSensorUser(userId);
     if (info) {
         console.log('gender:', info.gender);
         console.log('staff:', info.staff);
         console.log('admin:', info.admin);
+        console.log('owner guilds:', info.owner);
     } else {
         console.log('userData не найден');
     }

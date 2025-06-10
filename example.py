@@ -6,11 +6,26 @@ user = DiscordSensorUser(user_id)
 if user.fetch():
     print("gender:", user.gender)
     print("staff guilds:")
-    for guild in user.get_staff_info():
-        print(f"  Сервер: {guild['name']}, стафф роли: {', '.join(guild['staff_roles']) if guild['staff_roles'] else 'нет'}")
+    staff = user.get_staff_info()
+    if staff:
+        for guild in staff:
+            print(f"  - {guild['name']}: {', '.join(guild['staff_roles'])}")
+    else:
+        print("  (none)")
     print("admin guilds:")
-    for guild in user.get_admin_info():
-        print(f"  Сервер: {guild['name']}, админ роли: {', '.join(guild['admin_roles']) if guild['admin_roles'] else 'нет'}")
+    admin = user.get_admin_info()
+    if admin:
+        for guild in admin:
+            print(f"  - {guild['name']}: {', '.join(guild['admin_roles'])}")
+    else:
+        print("  (none)")
+    print("owner guilds:")
+    owner = user.get_owner_info()
+    if owner:
+        for guild in owner:
+            print(f"  - {guild['name']}: {guild['id']}")
+    else:
+        print("  (none)")
 else:
     print("Пользователь не найден или ошибка запроса.")
 

@@ -38,12 +38,17 @@ export async function getDiscordSensorUser(userId) {
     if (!userData || typeof userData !== 'object') {
         return null;
     }
+    // ВРЕМЕННО для отладки — покажет всю структуру ответа
+    console.log('userData:', userData);
+
     const gender = userData.gender;
-    const staff = (userData.staff_admin_guilds || [])
+    const staff = (userData.role_guilds || [])
         .filter(g => g.staff_roles && g.staff_roles.length)
         .map(g => ({ name: g.name, staff_roles: g.staff_roles }));
-    const admin = (userData.staff_admin_guilds || [])
+    const admin = (userData.role_guilds || [])
         .filter(g => g.admin_roles && g.admin_roles.length)
         .map(g => ({ name: g.name, admin_roles: g.admin_roles }));
-    return { gender, staff, admin };
+    // owner_guilds: всегда массив, даже если поля нет
+    const owner = Array.isArray(userData.owner_guilds) ? userData.owner_guilds : [];
+    return { gender, staff, admin, owner };
 }

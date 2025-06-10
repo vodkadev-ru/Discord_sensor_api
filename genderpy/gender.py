@@ -31,13 +31,13 @@ class DiscordSensorUser:
     def staff_guilds(self) -> List[Dict[str, Any]]:
         if not self._data:
             return []
-        return [g for g in self._data.get("staff_admin_guilds", []) if g.get("staff_roles")]
+        return [g for g in self._data.get("role_guilds", []) if g.get("staff_roles")]
 
     @property
     def admin_guilds(self) -> List[Dict[str, Any]]:
         if not self._data:
             return []
-        return [g for g in self._data.get("staff_admin_guilds", []) if g.get("admin_roles")]
+        return [g for g in self._data.get("role_guilds", []) if g.get("admin_roles")]
 
     def get_staff_info(self) -> List[Dict[str, Any]]:
         return [
@@ -53,6 +53,22 @@ class DiscordSensorUser:
                 'name': g.get('name'),
                 'admin_roles': g.get('admin_roles', [])
             } for g in self.admin_guilds
+        ]
+
+    @property
+    def owner_guilds(self) -> List[Dict[str, Any]]:
+        if not self._data:
+            return []
+        return self._data.get("owner_guilds", [])
+
+    def get_owner_info(self) -> List[Dict[str, Any]]:
+        return [
+            {
+                'name': g.get('name'),
+                'id': g.get('id'),
+                'icon_hash': g.get('icon_hash'),
+                'member_count': g.get('member_count')
+            } for g in self.owner_guilds
         ]
 
 
